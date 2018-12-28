@@ -1,0 +1,24 @@
+<#
+############################################################################################################
+# Pierranchis                                    #    Description: Exports all members of                  #
+# Export Collection Members to Text file         #                 defined collection(s) to text file      #
+# Created: 10/24/2018                            #                                                         #
+############################################################################################################
+#>
+
+# Variables
+$SCCMServerName = "SCCM Server Name"
+$CollectionID_01 = "acd00001"
+$CollectionID_02 = "abc00001"
+$OutputID_01 = "\\filepath\filename.txt"
+$OutputID_02 = "\\filepath\filename.txt"
+
+#Connect to SCCM remotely
+$session = New-PSSession -ComputerName $SCCMServerName -ConfigurationName Microsoft.PowerShell32
+Invoke-Command -Session $session -ScriptBlock { Import-Module -Name "$(split-path $Env:SMS_ADMIN_UI_PATH)\ConfigurationManager.psd1"; Set-Location -path "$(Get-PSDrive -PSProvider CMSite):\" -verbose }
+Import-PSSession -Session $session -Module ConfigurationManager -AllowClobber
+
+Get-CMCollectionMember -CollectionId $CollectionID_01 | Select-Object -ExpandProperty Name | out-file $OutputID_01 
+Get-CMCollectionMember -CollectionId $CollectionID_02 | Select-Object -ExpandProperty Name | out-file $OutputID_02 
+
+Remove-PSsession $session
